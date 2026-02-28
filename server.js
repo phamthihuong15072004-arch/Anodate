@@ -52,11 +52,24 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on("disconnect", () => {
+  // 🔥 THOÁT CUỘC TRÒ CHUYỆN
+  socket.on("leaveChat", () => {
+
     if (socket.partner) {
       socket.partner.emit("partnerLeft");
       socket.partner.partner = null;
     }
+
+    socket.partner = null;
+  });
+
+  socket.on("disconnect", () => {
+
+    if (socket.partner) {
+      socket.partner.emit("partnerLeft");
+      socket.partner.partner = null;
+    }
+
     waitingUsers = waitingUsers.filter(user => user.id !== socket.id);
   });
 
