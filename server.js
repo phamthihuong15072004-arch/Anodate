@@ -52,7 +52,6 @@ io.on("connection", (socket) => {
     }
   });
 
-  // 🔥 THOÁT CUỘC TRÒ CHUYỆN
   socket.on("leaveChat", () => {
 
     if (socket.partner) {
