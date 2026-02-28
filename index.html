@@ -1,292 +1,312 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Anodate</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #ff758c, #ff7eb3);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Anodate</title>
 
-        .container {
-            width: 600px;
-            height: 90vh;
-            background: white;
-            border-radius: 20px;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
-            position: relative;
-        }
+<style>
+body {
+    margin:0;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg,#ff758c,#ff7eb3);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+}
 
-        .header {
-            background: #ff4d6d;
-            color: white;
-            padding: 15px;
-            text-align: center;
-            font-weight: bold;
-            position: relative;
-            font-size: 18px;
-        }
+.container {
+    width:600px;
+    height:90vh;
+    background:white;
+    border-radius:20px;
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
+    box-shadow:0 15px 40px rgba(0,0,0,0.2);
+    position:relative;
+}
 
-        .settings-btn {
-            position: absolute;
-            right: 20px;
-            top: 15px;
-            cursor: pointer;
-        }
+.header {
+    background:#ff4d6d;
+    color:white;
+    padding:15px;
+    text-align:center;
+    font-weight:bold;
+    position:relative;
+}
 
-        .start-btn {
-            margin: 15px;
-            padding: 12px;
-            border: none;
-            border-radius: 25px;
-            background: #ff4d6d;
-            color: white;
-            cursor: pointer;
-            font-size: 15px;
-        }
+.settings-btn {
+    position:absolute;
+    right:20px;
+    top:15px;
+    cursor:pointer;
+}
 
-        .messages {
-            flex: 1;
-            padding: 20px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-        }
+.start-btn {
+    margin:15px;
+    padding:12px;
+    border:none;
+    border-radius:25px;
+    background:#ff4d6d;
+    color:white;
+    cursor:pointer;
+}
 
-        .message {
-            padding: 14px 18px;
-            margin: 8px 0;
-            border-radius: 25px;
-            max-width: 80%;
-            font-size: 16px;
-        }
+.messages {
+    flex:1;
+    padding:20px;
+    overflow-y:auto;
+    display:flex;
+    flex-direction:column;
+}
 
-        .me {
-            background: #ff4d6d;
-            color: white;
-            align-self: flex-end;
-        }
+.message {
+    padding:14px 18px;
+    margin:6px 0;
+    border-radius:25px;
+    max-width:80%;
+    font-size:16px;
+}
 
-        .stranger {
-            background: #f1f0f0;
-            align-self: flex-start;
-        }
+.me {
+    background:#ff4d6d;
+    color:white;
+    align-self:flex-end;
+}
 
-        .system {
-            text-align: center;
-            font-size: 13px;
-            color: gray;
-            margin: 5px 0;
-        }
+.stranger {
+    background:#f1f0f0;
+    align-self:flex-start;
+}
 
-        .input-area {
-            display: flex;
-            padding: 15px;
-            border-top: 1px solid #ddd;
-        }
+.system {
+    text-align:center;
+    font-size:13px;
+    color:gray;
+    margin:5px 0;
+}
 
-        .input-area input {
-            flex: 1;
-            padding: 14px;
-            border-radius: 25px;
-            border: 1px solid #ccc;
-            font-size: 16px;
-        }
+.input-area {
+    display:flex;
+    padding:15px;
+    border-top:1px solid #ddd;
+}
 
-        .input-area button {
-            margin-left: 10px;
-            padding: 12px 20px;
-            border: none;
-            border-radius: 25px;
-            background: #ff4d6d;
-            color: white;
-            cursor: pointer;
-            font-size: 15px;
-        }
+.input-area input {
+    flex:1;
+    padding:14px;
+    border-radius:25px;
+    border:1px solid #ccc;
+    font-size:16px;
+}
 
-        .settings-overlay {
-            position: absolute;
-            inset: 0;
-            background: rgba(0,0,0,0.4);
-            display: none;
-            justify-content: center;
-            align-items: center;
-        }
+.input-area button {
+    margin-left:8px;
+    padding:12px 16px;
+    border:none;
+    border-radius:25px;
+    background:#ff4d6d;
+    color:white;
+    cursor:pointer;
+}
 
-        .settings-box {
-            background: white;
-            width: 85%;
-            padding: 20px;
-            border-radius: 20px;
-        }
+.leave-x {
+    border-radius:50%;
+    padding:12px 16px;
+}
 
-        .settings-box h3 {
-            margin-top: 0;
-            text-align: center;
-        }
+.settings-overlay,
+.popup-overlay {
+    position:absolute;
+    inset:0;
+    background:rgba(0,0,0,0.4);
+    display:none;
+    justify-content:center;
+    align-items:center;
+}
 
-        .settings-box select {
-            width: 100%;
-            padding: 8px;
-            margin-bottom: 15px;
-            border-radius: 10px;
-            border: 1px solid #ccc;
-        }
+.settings-box,
+.popup-box {
+    background:white;
+    padding:20px;
+    border-radius:15px;
+    width:80%;
+    text-align:center;
+}
 
-        .save-btn {
-            width: 100%;
-            padding: 10px;
-            border: none;
-            border-radius: 20px;
-            background: #ff4d6d;
-            color: white;
-            cursor: pointer;
-        }
-    </style>
+.settings-box select {
+    width:100%;
+    padding:8px;
+    margin-bottom:15px;
+    border-radius:10px;
+}
+
+.popup-buttons {
+    margin-top:15px;
+    display:flex;
+    justify-content:space-around;
+}
+
+.cancel-btn {
+    background:gray !important;
+}
+</style>
 </head>
+
 <body>
 
 <div class="container">
-    <div class="header">
-        🔥 Anodate
-        <span class="settings-btn" onclick="toggleSettings()">⚙</span>
-    </div>
 
-    <button id="findBtn" class="start-btn" onclick="findPartner()">Tìm người mới</button>
+<div class="header">
+🔥 Anodate
+<span class="settings-btn" onclick="toggleSettings()">⚙</span>
+</div>
 
-    <div class="messages" id="messages"></div>
+<button class="start-btn" onclick="findPartner()">Tìm người mới</button>
 
-    <div class="input-area">
-        <input id="msgInput" placeholder="Nhập tin nhắn..." disabled>
-        <button onclick="sendMessage()">Gửi</button>
-    </div>
+<div class="messages" id="messages"></div>
 
-    <div class="settings-overlay" id="settingsOverlay">
-        <div class="settings-box">
-            <h3>Cài đặt</h3>
+<div class="input-area">
+<input id="msgInput" placeholder="Nhập tin nhắn..." disabled>
+<button onclick="sendMessage()">Gửi</button>
+<button class="leave-x" onclick="showLeavePopup()">✖</button>
+</div>
 
-            Giới tính của bạn:
-            <select id="myGender">
-                <option value="">-- Chọn --</option>
-                <option value="Nam">Nam</option>
-                <option value="Nữ">Nữ</option>
-                <option value="Khác">Khác</option>
-            </select>
+<!-- Settings -->
+<div class="settings-overlay" id="settingsOverlay">
+<div class="settings-box">
+<h3>Cài đặt</h3>
 
-            Bạn muốn tìm:
-            <select id="findGender">
-                <option value="">-- Chọn --</option>
-                <option value="Nam">Nam</option>
-                <option value="Nữ">Nữ</option>
-                <option value="Any">Bất kỳ</option>
-            </select>
+Giới tính của bạn:
+<select id="myGender">
+<option value="">-- Chọn --</option>
+<option value="Nam">Nam</option>
+<option value="Nữ">Nữ</option>
+<option value="Khác">Khác</option>
+</select>
 
-            <button class="save-btn" onclick="saveSettings()">Lưu</button>
-        </div>
-    </div>
+Bạn muốn tìm:
+<select id="findGender">
+<option value="">-- Chọn --</option>
+<option value="Nam">Nam</option>
+<option value="Nữ">Nữ</option>
+<option value="Any">Bất kỳ</option>
+</select>
+
+<button class="start-btn" onclick="saveSettings()">Lưu</button>
+</div>
+</div>
+
+<!-- Leave Popup -->
+<div class="popup-overlay" id="leavePopup">
+<div class="popup-box">
+<p>Bạn có chắc chắn muốn thoát không?</p>
+<div class="popup-buttons">
+<button onclick="confirmLeave()">Có</button>
+<button class="cancel-btn" onclick="hideLeavePopup()">Không</button>
+</div>
+</div>
+</div>
+
 </div>
 
 <script src="/socket.io/socket.io.js"></script>
 <script>
+
 const socket = io();
 let connected = false;
 let myGender = "";
 let findGender = "";
 
-function toggleSettings() {
-    const overlay = document.getElementById("settingsOverlay");
-    overlay.style.display = overlay.style.display === "flex" ? "none" : "flex";
+function toggleSettings(){
+const o=document.getElementById("settingsOverlay");
+o.style.display=o.style.display==="flex"?"none":"flex";
 }
 
-function saveSettings() {
-    myGender = document.getElementById("myGender").value;
-    findGender = document.getElementById("findGender").value;
-
-    if (!myGender || !findGender) {
-        alert("Vui lòng chọn đầy đủ!");
-        return;
-    }
-
-    addSystem("Đã lưu cài đặt.");
-    toggleSettings();
-
-    // 🔥 TỰ ĐỘNG TÌM NGƯỜI
-    socket.emit("findPartner", { myGender, findGender });
-    addSystem("Đang tìm người phù hợp...");
+function saveSettings(){
+myGender=document.getElementById("myGender").value;
+findGender=document.getElementById("findGender").value;
+if(!myGender||!findGender){alert("Chọn đầy đủ!");return;}
+addSystem("Đã lưu cài đặt.");
+toggleSettings();
+socket.emit("findPartner",{myGender,findGender});
+addSystem("Đang tìm người phù hợp...");
 }
 
-function findPartner() {
-    if (!myGender || !findGender) {
-        alert("Vào ⚙ Cài đặt trước!");
-        return;
-    }
-
-    socket.emit("findPartner", { myGender, findGender });
-    addSystem("Đang tìm người phù hợp...");
+function findPartner(){
+if(!myGender||!findGender){alert("Vào cài đặt trước!");return;}
+socket.emit("findPartner",{myGender,findGender});
+addSystem("Đang tìm người phù hợp...");
 }
 
-function sendMessage() {
-    if (!connected) return;
-
-    const input = document.getElementById("msgInput");
-    const msg = input.value.trim();
-    if (!msg) return;
-
-    addMessage(msg, "me");
-    socket.emit("chatMessage", msg);
-    input.value = "";
+function sendMessage(){
+if(!connected)return;
+const input=document.getElementById("msgInput");
+const msg=input.value.trim();
+if(!msg)return;
+addMessage(msg,"me");
+socket.emit("chatMessage",msg);
+input.value="";
 }
 
-function addMessage(text, type) {
-    const div = document.createElement("div");
-    div.classList.add("message", type);
-    div.innerText = text;
-    document.getElementById("messages").appendChild(div);
-    document.getElementById("messages").scrollTop =
-        document.getElementById("messages").scrollHeight;
+function addMessage(text,type){
+const div=document.createElement("div");
+div.classList.add("message",type);
+div.innerText=text;
+document.getElementById("messages").appendChild(div);
+document.getElementById("messages").scrollTop=999999;
 }
 
-function addSystem(text) {
-    const div = document.createElement("div");
-    div.classList.add("system");
-    div.innerText = text;
-    document.getElementById("messages").appendChild(div);
+function addSystem(text){
+const div=document.createElement("div");
+div.classList.add("system");
+div.innerText=text;
+document.getElementById("messages").appendChild(div);
 }
 
-socket.on("matched", (gender) => {
-    connected = true;
-    document.getElementById("msgInput").disabled = false;
-    addSystem("Bạn đã kết nối với một " + gender);
+function showLeavePopup(){
+if(!connected)return;
+document.getElementById("leavePopup").style.display="flex";
+}
+
+function hideLeavePopup(){
+document.getElementById("leavePopup").style.display="none";
+}
+
+function confirmLeave(){
+socket.emit("leaveChat");
+connected=false;
+document.getElementById("msgInput").disabled=true;
+addSystem("Bạn đã thoát cuộc trò chuyện.");
+addSystem("Ấn nút 'Tìm người mới' bên trên để tìm người khác.");
+hideLeavePopup();
+}
+
+socket.on("matched",(gender)=>{
+connected=true;
+document.getElementById("msgInput").disabled=false;
+addSystem("Bạn đã kết nối với một "+gender);
 });
 
-socket.on("waiting", () => {
-    connected = false;
-    addSystem("Đang chờ người phù hợp...");
+socket.on("waiting",()=>{
+connected=false;
+addSystem("Đang chờ người phù hợp...");
 });
 
-socket.on("chatMessage", (msg) => {
-    addMessage(msg, "stranger");
+socket.on("chatMessage",(msg)=>{
+addMessage(msg,"stranger");
 });
 
-socket.on("partnerLeft", () => {
-    connected = false;
-    document.getElementById("msgInput").disabled = true;
-
-    addSystem("Người kia đã rời cuộc trò chuyện.");
-    addSystem("Ấn nút 'Tìm người mới' bên trên để tìm người khác.");
+socket.on("partnerLeft",()=>{
+connected=false;
+document.getElementById("msgInput").disabled=true;
+addSystem("Người kia đã rời cuộc trò chuyện.");
+addSystem("Ấn nút 'Tìm người mới' bên trên để tìm người khác.");
 });
 
-document.getElementById("msgInput").addEventListener("keydown", function(e) {
-    if (e.key === "Enter") sendMessage();
+document.getElementById("msgInput").addEventListener("keydown",e=>{
+if(e.key==="Enter")sendMessage();
 });
 </script>
 
