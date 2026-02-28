@@ -108,11 +108,6 @@ body {
     height: 42px;
     font-size: 18px;
     cursor: pointer;
-    transition: 0.2s;
-}
-
-.leave-btn:hover {
-    background: #ffccd5;
 }
 
 .start-btn {
@@ -136,14 +131,28 @@ body {
     display: none;
 }
 
-/* ===== POPUP ===== */
+.settings-panel select {
+    width: 100%;
+    padding: 6px;
+    margin-top: 5px;
+    margin-bottom: 15px;
+}
+
+.save-btn {
+    width: 100%;
+    padding: 10px;
+    background: #ff4d6d;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+/* POPUP */
 
 .popup-overlay {
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    inset: 0;
     background: rgba(0,0,0,0.4);
     display: none;
     justify-content: center;
@@ -156,22 +165,16 @@ body {
     border-radius: 15px;
     width: 320px;
     text-align: center;
-    animation: fadeIn 0.2s ease;
-}
-
-.popup h3 {
-    margin-top: 0;
 }
 
 .popup-buttons {
     margin-top: 20px;
     display: flex;
-    justify-content: space-between;
+    gap: 10px;
 }
 
 .popup-buttons button {
     flex: 1;
-    margin: 0 5px;
     padding: 10px;
     border: none;
     border-radius: 20px;
@@ -185,11 +188,6 @@ body {
 .confirm-btn {
     background: #ff4d6d;
     color: white;
-}
-
-@keyframes fadeIn {
-    from { transform: scale(0.9); opacity: 0; }
-    to { transform: scale(1); opacity: 1; }
 }
 
 </style>
@@ -213,6 +211,29 @@ body {
         <button class="leave-btn" onclick="openPopup()">🚪</button>
     </div>
 
+    <!-- SETTINGS -->
+    <div class="settings-panel" id="settingsPanel">
+        <h3>Cài đặt</h3>
+
+        Giới tính của bạn:
+        <select id="myGender">
+            <option value="">-- Chọn --</option>
+            <option value="Nam">Nam</option>
+            <option value="Nữ">Nữ</option>
+            <option value="Khác">Khác</option>
+        </select>
+
+        Bạn muốn tìm:
+        <select id="findGender">
+            <option value="">-- Chọn --</option>
+            <option value="Nam">Nam</option>
+            <option value="Nữ">Nữ</option>
+            <option value="Any">Bất kỳ</option>
+        </select>
+
+        <button class="save-btn" onclick="saveSettings()">Lưu</button>
+    </div>
+
     <!-- POPUP -->
     <div class="popup-overlay" id="popup">
         <div class="popup">
@@ -232,17 +253,44 @@ body {
 
 const socket = io();
 let connected = false;
+let myGender = "";
+let findGender = "";
+
+function toggleSettings() {
+    const panel = document.getElementById("settingsPanel");
+    panel.style.display = panel.style.display === "block" ? "none" : "block";
+}
+
+function saveSettings() {
+    myGender = document.getElementById("myGender").value;
+    findGender = document.getElementById("findGender").value;
+
+    if (!myGender || !findGender) {
+        alert("Vui lòng chọn đầy đủ thông tin!");
+        return;
+    }
+
+    addSystem("Đã lưu cài đặt.");
+    toggleSettings();
+}
 
 function findPartner() {
-    socket.emit("findPartner", { myGender: "Nam", findGender: "Any" });
-    addSystem("Đang tìm người...");
+    if (!myGender || !findGender) {
+        alert("Vui lòng vào Cài đặt trước!");
+        return;
+    }
+
+    socket.emit("findPartner", { myGender, findGender });
+    addSystem("Đang tìm người phù hợp...");
 }
 
 function sendMessage() {
     if (!connected) return;
+
     const input = document.getElementById("msgInput");
     const msg = input.value.trim();
     if (!msg) return;
+
     addMessage(msg, "me");
     socket.emit("chatMessage", msg);
     input.value = "";
@@ -281,10 +329,14 @@ function addSystem(text) {
     document.getElementById("messages").appendChild(div);
 }
 
-socket.on("matched", () => {
+socket.on("matched", (gender) => {
     connected = true;
     document.getElementById("msgInput").disabled = false;
-    addSystem("Đã kết nối!");
+    addSystem("Bạn đã kết nối với một " + gender);
+});
+
+socket.on("waiting", () => {
+    addSystem("Đang chờ người phù hợp...");
 });
 
 socket.on("chatMessage", (msg) => {
@@ -295,6 +347,10 @@ socket.on("partnerLeft", () => {
     connected = false;
     document.getElementById("msgInput").disabled = true;
     addSystem("Người kia đã rời đi.");
+});
+
+document.getElementById("msgInput").addEventListener("keydown", function(e) {
+    if (e.key === "Enter") sendMessage();
 });
 
 </script>
