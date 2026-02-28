@@ -6,8 +6,8 @@
     <style>
         body {
             margin: 0;
-            font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #ff758c, #ff7eb3);
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #ff758c, #7a5cff);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -15,104 +15,119 @@
         }
 
         .container {
-            width: 800px;
-            height: 90vh;
-            background: white;
-            border-radius: 20px;
+            width: 380px;
+            height: 680px;
+            background: #ffffff;
+            border-radius: 25px;
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.25);
             position: relative;
         }
 
         .header {
-            background: #ff4d6d;
+            background: linear-gradient(135deg, #ff4d6d, #7a5cff);
             color: white;
-            padding: 15px;
+            padding: 18px;
             text-align: center;
+            font-size: 18px;
             font-weight: bold;
             position: relative;
-            font-size: 18px;
         }
 
         .settings-btn {
             position: absolute;
             right: 20px;
-            top: 15px;
+            top: 18px;
+            font-size: 18px;
             cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .settings-btn:hover {
+            transform: rotate(90deg);
         }
 
         .start-btn {
             margin: 15px;
             padding: 12px;
             border: none;
-            border-radius: 25px;
-            background: #ff4d6d;
+            border-radius: 30px;
+            background: linear-gradient(135deg, #ff4d6d, #7a5cff);
             color: white;
+            font-weight: bold;
             cursor: pointer;
-            font-size: 15px;
+            transition: 0.3s;
+        }
+
+        .start-btn:hover {
+            opacity: 0.9;
+            transform: scale(1.03);
         }
 
         .messages {
             flex: 1;
-            padding: 20px;
+            padding: 15px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
         }
 
         .message {
-            padding: 14px 18px;
-            margin: 8px 0;
-            border-radius: 25px;
-            max-width: 80%;
-            font-size: 16px;
+            padding: 10px 14px;
+            margin: 6px 0;
+            border-radius: 20px;
+            max-width: 70%;
+            font-size: 14px;
+            animation: fadeIn 0.2s ease-in;
         }
 
         .me {
-            background: #ff4d6d;
+            background: linear-gradient(135deg, #ff4d6d, #ff758c);
             color: white;
             align-self: flex-end;
         }
 
         .stranger {
-            background: #f1f0f0;
+            background: #f2f2f2;
             align-self: flex-start;
         }
 
         .system {
             text-align: center;
-            font-size: 13px;
+            font-size: 12px;
             color: gray;
             margin: 5px 0;
         }
 
         .input-area {
             display: flex;
-            padding: 15px;
-            border-top: 1px solid #ddd;
+            padding: 12px;
+            border-top: 1px solid #eee;
+            background: #fafafa;
         }
 
         .input-area input {
             flex: 1;
-            padding: 14px;
+            padding: 10px;
             border-radius: 25px;
-            border: 1px solid #ccc;
-            font-size: 16px;
+            border: 1px solid #ddd;
+            outline: none;
+            font-size: 14px;
         }
 
         .input-area button {
-            margin-left: 10px;
-            padding: 12px 20px;
+            margin-left: 8px;
+            padding: 10px 18px;
             border: none;
             border-radius: 25px;
-            background: #ff4d6d;
+            background: linear-gradient(135deg, #ff4d6d, #7a5cff);
             color: white;
             cursor: pointer;
-            font-size: 15px;
         }
 
+        /* SETTINGS POPUP */
         .settings-overlay {
             position: absolute;
             inset: 0;
@@ -127,6 +142,7 @@
             width: 85%;
             padding: 20px;
             border-radius: 20px;
+            animation: popUp 0.2s ease-in;
         }
 
         .settings-box h3 {
@@ -147,9 +163,19 @@
             padding: 10px;
             border: none;
             border-radius: 20px;
-            background: #ff4d6d;
+            background: linear-gradient(135deg, #ff4d6d, #7a5cff);
             color: white;
             cursor: pointer;
+        }
+
+        @keyframes fadeIn {
+            from {opacity: 0; transform: translateY(5px);}
+            to {opacity: 1; transform: translateY(0);}
+        }
+
+        @keyframes popUp {
+            from {transform: scale(0.9); opacity: 0;}
+            to {transform: scale(1); opacity: 1;}
         }
     </style>
 </head>
@@ -161,7 +187,7 @@
         <span class="settings-btn" onclick="toggleSettings()">⚙</span>
     </div>
 
-    <button id="findBtn" class="start-btn" onclick="findPartner()">Tìm người mới</button>
+    <button class="start-btn" onclick="findPartner()">Tìm người mới</button>
 
     <div class="messages" id="messages"></div>
 
@@ -170,6 +196,7 @@
         <button onclick="sendMessage()">Gửi</button>
     </div>
 
+    <!-- SETTINGS -->
     <div class="settings-overlay" id="settingsOverlay">
         <div class="settings-box">
             <h3>Cài đặt</h3>
@@ -218,10 +245,6 @@ function saveSettings() {
 
     addSystem("Đã lưu cài đặt.");
     toggleSettings();
-
-    // 🔥 TỰ ĐỘNG TÌM NGƯỜI
-    socket.emit("findPartner", { myGender, findGender });
-    addSystem("Đang tìm người phù hợp...");
 }
 
 function findPartner() {
@@ -280,9 +303,7 @@ socket.on("chatMessage", (msg) => {
 socket.on("partnerLeft", () => {
     connected = false;
     document.getElementById("msgInput").disabled = true;
-
     addSystem("Người kia đã rời cuộc trò chuyện.");
-    addSystem("Ấn nút 'Tìm người mới' bên trên để tìm người khác.");
 });
 
 document.getElementById("msgInput").addEventListener("keydown", function(e) {
