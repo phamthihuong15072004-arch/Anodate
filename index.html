@@ -22,6 +22,7 @@
             flex-direction: column;
             overflow: hidden;
             box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            position: relative;
         }
 
         .header {
@@ -30,27 +31,13 @@
             padding: 15px;
             text-align: center;
             font-weight: bold;
+            position: relative;
         }
 
-        .select-area {
-            padding: 10px;
-            border-bottom: 1px solid #eee;
-            font-size: 14px;
-        }
-
-        .select-area select {
-            margin-top: 5px;
-            padding: 5px;
-            border-radius: 8px;
-        }
-
-        .start-btn {
-            padding: 10px;
-            margin: 10px;
-            border: none;
-            border-radius: 20px;
-            background: #ff4d6d;
-            color: white;
+        .settings-btn {
+            position: absolute;
+            right: 15px;
+            top: 15px;
             cursor: pointer;
         }
 
@@ -96,7 +83,6 @@
             padding: 8px;
             border-radius: 20px;
             border: 1px solid #ccc;
-            outline: none;
         }
 
         .input-area button {
@@ -108,14 +94,68 @@
             color: white;
             cursor: pointer;
         }
+
+        .start-btn {
+            margin: 10px;
+            padding: 10px;
+            border: none;
+            border-radius: 20px;
+            background: #ff4d6d;
+            color: white;
+            cursor: pointer;
+        }
+
+        /* SETTINGS PANEL */
+        .settings-panel {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 2px solid #ff4d6d;
+            padding: 20px;
+            display: none;
+        }
+
+        .settings-panel select {
+            width: 100%;
+            padding: 6px;
+            margin-top: 5px;
+            margin-bottom: 15px;
+        }
+
+        .save-btn {
+            width: 100%;
+            padding: 10px;
+            background: #ff4d6d;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="header">🔥 Anodate 🔥</div>
+    <div class="header">
+        🔥 Anodate 🔥
+        <span class="settings-btn" onclick="toggleSettings()">⚙</span>
+    </div>
 
-    <div class="select-area">
+    <button class="start-btn" onclick="findPartner()">Tìm người mới</button>
+
+    <div class="messages" id="messages"></div>
+
+    <div class="input-area">
+        <input id="msgInput" placeholder="Nhập tin nhắn..." disabled />
+        <button onclick="sendMessage()">Gửi</button>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="settings-panel" id="settingsPanel">
+        <h3>Cài đặt</h3>
+
         Giới tính của bạn:
         <select id="myGender">
             <option value="">-- Chọn --</option>
@@ -124,8 +164,6 @@
             <option value="Khác">Khác</option>
         </select>
 
-        <br><br>
-
         Bạn muốn tìm:
         <select id="findGender">
             <option value="">-- Chọn --</option>
@@ -133,15 +171,8 @@
             <option value="Nữ">Nữ</option>
             <option value="Any">Bất kỳ</option>
         </select>
-    </div>
 
-    <button class="start-btn" onclick="findPartner()">Tìm người mới</button>
-
-    <div class="messages" id="messages"></div>
-
-    <div class="input-area">
-        <input id="msgInput" placeholder="Nhập tin nhắn..." />
-        <button onclick="sendMessage()">Gửi</button>
+        <button class="save-btn" onclick="saveSettings()">Lưu</button>
     </div>
 </div>
 
@@ -149,21 +180,34 @@
 <script>
     const socket = io();
     let connected = false;
+    let myGender = "";
+    let findGender = "";
 
-    function findPartner() {
-        const myGender = document.getElementById("myGender").value;
-        const findGender = document.getElementById("findGender").value;
+    function toggleSettings() {
+        const panel = document.getElementById("settingsPanel");
+        panel.style.display = panel.style.display === "block" ? "none" : "block";
+    }
+
+    function saveSettings() {
+        myGender = document.getElementById("myGender").value;
+        findGender = document.getElementById("findGender").value;
 
         if (!myGender || !findGender) {
             alert("Vui lòng chọn đầy đủ thông tin!");
             return;
         }
 
-        socket.emit("findPartner", {
-            myGender: myGender,
-            findGender: findGender
-        });
+        addSystem("Đã lưu cài đặt.");
+        toggleSettings();
+    }
 
+    function findPartner() {
+        if (!myGender || !findGender) {
+            alert("Vui lòng vào Cài đặt trước!");
+            return;
+        }
+
+        socket.emit("findPartner", { myGender, findGender });
         addSystem("Đang tìm người phù hợp...");
     }
 
@@ -197,6 +241,7 @@
 
     socket.on("matched", (gender) => {
         connected = true;
+        document.getElementById("msgInput").disabled = false;
         addSystem("Bạn đã kết nối với một " + gender);
     });
 
@@ -211,14 +256,13 @@
 
     socket.on("partnerLeft", () => {
         connected = false;
+        document.getElementById("msgInput").disabled = true;
         addSystem("Người kia đã rời cuộc trò chuyện.");
     });
 
-    window.onload = function() {
-        document.getElementById("msgInput").addEventListener("keydown", function(e) {
-            if (e.key === "Enter") sendMessage();
-        });
-    };
+    document.getElementById("msgInput").addEventListener("keydown", function(e) {
+        if (e.key === "Enter") sendMessage();
+    });
 </script>
 
 </body>
