@@ -15,7 +15,7 @@
 
         .container {
             width: 400px;
-            height: 650px;
+            height: 680px;
             background: white;
             border-radius: 15px;
             display: flex;
@@ -32,16 +32,26 @@
             font-weight: bold;
         }
 
-        .gender-select {
+        .select-area {
             padding: 10px;
-            text-align: center;
             border-bottom: 1px solid #eee;
+            font-size: 14px;
         }
 
-        .gender-select select {
-            padding: 6px;
-            border-radius: 10px;
-            border: 1px solid #ccc;
+        .select-area select {
+            margin-top: 5px;
+            padding: 5px;
+            border-radius: 8px;
+        }
+
+        .start-btn {
+            padding: 10px;
+            margin: 10px;
+            border: none;
+            border-radius: 20px;
+            background: #ff4d6d;
+            color: white;
+            cursor: pointer;
         }
 
         .messages {
@@ -69,6 +79,12 @@
             align-self: flex-start;
         }
 
+        .system {
+            text-align: center;
+            font-size: 12px;
+            color: gray;
+        }
+
         .input-area {
             display: flex;
             padding: 10px;
@@ -92,16 +108,6 @@
             color: white;
             cursor: pointer;
         }
-
-        .start-btn {
-            padding: 10px;
-            margin: 10px;
-            border: none;
-            border-radius: 20px;
-            background: #ff4d6d;
-            color: white;
-            cursor: pointer;
-        }
     </style>
 </head>
 <body>
@@ -109,18 +115,27 @@
 <div class="container">
     <div class="header">🔥 Anodate 🔥</div>
 
-    <!-- CHỌN GIỚI TÍNH -->
-    <div class="gender-select">
-        Giới tính:
-        <select id="gender">
+    <div class="select-area">
+        Giới tính của bạn:
+        <select id="myGender">
             <option value="">-- Chọn --</option>
             <option value="Nam">Nam</option>
             <option value="Nữ">Nữ</option>
             <option value="Khác">Khác</option>
         </select>
+
+        <br><br>
+
+        Bạn muốn tìm:
+        <select id="findGender">
+            <option value="">-- Chọn --</option>
+            <option value="Nam">Nam</option>
+            <option value="Nữ">Nữ</option>
+            <option value="Any">Bất kỳ</option>
+        </select>
     </div>
 
-    <button class="start-btn" onclick="findnewpartner()">Tìm người mới</button>
+    <button class="start-btn" onclick="findPartner()">Tìm người mới</button>
 
     <div class="messages" id="messages"></div>
 
@@ -133,21 +148,28 @@
 <script src="/socket.io/socket.io.js"></script>
 <script>
     const socket = io();
-    let selectedGender = "";
+    let connected = false;
 
-    function findnewpartner() {
-        selectedGender = document.getElementById("gender").value;
+    function findPartner() {
+        const myGender = document.getElementById("myGender").value;
+        const findGender = document.getElementById("findGender").value;
 
-        if (!selectedGender) {
-            alert("Vui lòng chọn giới tính trước!");
+        if (!myGender || !findGender) {
+            alert("Vui lòng chọn đầy đủ thông tin!");
             return;
         }
 
-        socket.emit("findPartner", selectedGender);
-        addSystemMessage("Bạn đang tìm người... (Giới tính: " + selectedGender + ")");
+        socket.emit("findPartner", {
+            myGender: myGender,
+            findGender: findGender
+        });
+
+        addSystem("Đang tìm người phù hợp...");
     }
 
     function sendMessage() {
+        if (!connected) return;
+
         const input = document.getElementById("msgInput");
         const msg = input.value.trim();
         if (!msg) return;
@@ -162,32 +184,39 @@
         div.classList.add("message", type);
         div.innerText = text;
         document.getElementById("messages").appendChild(div);
-
-        const messages = document.getElementById("messages");
-        messages.scrollTop = messages.scrollHeight;
+        document.getElementById("messages").scrollTop =
+            document.getElementById("messages").scrollHeight;
     }
 
-    function addSystemMessage(text) {
+    function addSystem(text) {
         const div = document.createElement("div");
-        div.style.textAlign = "center";
-        div.style.fontSize = "12px";
-        div.style.color = "gray";
+        div.classList.add("system");
         div.innerText = text;
         document.getElementById("messages").appendChild(div);
     }
+
+    socket.on("matched", (gender) => {
+        connected = true;
+        addSystem("Bạn đã kết nối với một " + gender);
+    });
+
+    socket.on("waiting", () => {
+        connected = false;
+        addSystem("Đang chờ người phù hợp...");
+    });
 
     socket.on("chatMessage", (msg) => {
         addMessage(msg, "stranger");
     });
 
-    // ENTER để gửi
+    socket.on("partnerLeft", () => {
+        connected = false;
+        addSystem("Người kia đã rời cuộc trò chuyện.");
+    });
+
     window.onload = function() {
-        const input = document.getElementById("msgInput");
-        input.addEventListener("keydown", function(e) {
-            if (e.key === "Enter") {
-                e.preventDefault();
-                sendMessage();
-            }
+        document.getElementById("msgInput").addEventListener("keydown", function(e) {
+            if (e.key === "Enter") sendMessage();
         });
     };
 </script>
