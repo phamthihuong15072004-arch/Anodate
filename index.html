@@ -272,6 +272,9 @@ function saveSettings() {
 
     addSystem("Đã lưu cài đặt.");
     toggleSettings();
+
+    // 🔥 TỰ ĐỘNG TÌM
+    findPartner();
 }
 
 function findPartner() {
@@ -309,7 +312,10 @@ function leaveChat() {
     socket.emit("leaveChat");
     connected = false;
     document.getElementById("msgInput").disabled = true;
+
     addSystem("Bạn đã rời cuộc trò chuyện.");
+    addSystem("👉 Bấm 'Tìm người mới' bên trên để tiếp tục.");
+
     closePopup();
 }
 
@@ -346,7 +352,9 @@ socket.on("chatMessage", (msg) => {
 socket.on("partnerLeft", () => {
     connected = false;
     document.getElementById("msgInput").disabled = true;
+
     addSystem("Người kia đã rời đi.");
+    addSystem("👉 Bấm 'Tìm người mới' bên trên để tiếp tục.");
 });
 
 document.getElementById("msgInput").addEventListener("keydown", function(e) {
