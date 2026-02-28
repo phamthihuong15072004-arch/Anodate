@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Anodate</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #ff758c, #ff7eb3);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            width: 400px;
+            height: 600px;
+            background: white;
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .header {
+            background: #ff4d6d;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .messages {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .message {
+            padding: 8px 12px;
+            margin: 5px 0;
+            border-radius: 15px;
+            max-width: 70%;
+        }
+
+        .me {
+            background: #dcf8c6;
+            align-self: flex-end;
+        }
+
+        .stranger {
+            background: #f1f0f0;
+            align-self: flex-start;
+        }
+
+        .input-area {
+            display: flex;
+            padding: 10px;
+            border-top: 1px solid #ddd;
+        }
+
+        .input-area input {
+            flex: 1;
+            padding: 8px;
+            border-radius: 20px;
+            border: 1px solid #ccc;
+            outline: none;
+        }
+
+        .input-area button {
+            margin-left: 8px;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 20px;
+            background: #ff4d6d;
+            color: white;
+            cursor: pointer;
+        }
+
+        .start-btn {
+            padding: 10px;
+            margin: 10px;
+            border: none;
+            border-radius: 20px;
+            background: #ff4d6d;
+            color: white;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">🔥 Anodate 🔥</div>
+
+    <button class="start-btn" onclick="findnewpartner()">Tìm người mới</button>
+
+    <div class="messages" id="messages"></div>
+
+    <div class="input-area">
+        <input id="msgInput" placeholder="Nhập tin nhắn..." />
+        <button onclick="sendMessage()">Gửi</button>
+    </div>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+    const socket = io();
+
+    function findnewpartner() {
+        socket.emit("findPartner");
+        addSystemMessage("Đang tìm người...");
+    }
+
+    function sendMessage() {
+        const input = document.getElementById("msgInput");
+        const msg = input.value.trim();
+        if (!msg) return;
+
+        addMessage(msg, "me");
+        socket.emit("chatMessage", msg);
+        input.value = "";
+    }
+
+    function addMessage(text, type) {
+        const div = document.createElement("div");
+        div.classList.add("message", type);
+        div.innerText = text;
+        document.getElementById("messages").appendChild(div);
+
+        const messages = document.getElementById("messages");
+        messages.scrollTop = messages.scrollHeight;
+    }
+
+    function addSystemMessage(text) {
+        const div = document.createElement("div");
+        div.style.textAlign = "center";
+        div.style.fontSize = "12px";
+        div.style.color = "gray";
+        div.innerText = text;
+        document.getElementById("messages").appendChild(div);
+    }
+
+    socket.on("chatMessage", (msg) => {
+        if (msg.includes("đã rời")) {
+            addSystemMessage(msg);
+        } else {
+            addMessage(msg.replace("Người lạ: ", ""), "stranger");
+        }
+    });
+
+    // ✅ ENTER để gửi
+    window.onload = function() {
+        const input = document.getElementById("msgInput");
+        input.addEventListener("keydown", function(e) {
+            if (e.key === "Enter") {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+    };
+</script>
+
+</body>
+</html>
