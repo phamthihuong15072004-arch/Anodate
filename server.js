@@ -1,86 +1,67 @@
 const express = require("express");
 const http = require("http");
-const { Server } = require("socket.io");
+const socketIo = require("socket.io");
+const path = require("path");
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server);
+const io = socketIo(server);
 
-app.use(express.static("public"));
+const PORT = process.env.PORT || 3000;
 
-let users = {};
+app.use(express.static(path.join(__dirname)));
+
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "index.html"));
+});
+
 let waitingUsers = [];
 
 io.on("connection", (socket) => {
 
-socket.on("findPartner", ({ myGender, findGender }) => {
+  socket.on("findPartner", (data) => {
 
-users[socket.id] = {
-id: socket.id,
-myGender,
-findGender,
-partner: null
-};
+    socket.myGender = data.myGender;
+    socket.findGender = data.findGender;
 
-let foundIndex = waitingUsers.findIndex(otherId => {
-const other = users[otherId];
-if (!other) return false;
+    const matchIndex = waitingUsers.findIndex(user => {
+      return (
+        (socket.findGender === "Any" || user.myGender === socket.findGender) &&
+        (user.findGender === "Any" || socket.myGender === user.findGender)
+      );
+    });
 
-return (
-(findGender === "Any" || other.myGender === findGender) &&
-(other.findGender === "Any" || myGender === other.findGender)
-);
-});
+    if (matchIndex !== -1) {
+      const partner = waitingUsers.splice(matchIndex, 1)[0];
 
-if (foundIndex !== -1) {
-const partnerId = waitingUsers[foundIndex];
-waitingUsers.splice(foundIndex,1);
+      socket.partner = partner;
+      partner.partner = socket;
 
-users[socket.id].partner = partnerId;
-users[partnerId].partner = socket.id;
+      socket.emit("matched", partner.myGender);
+      partner.emit("matched", socket.myGender);
 
-io.to(socket.id).emit("matched", users[partnerId].myGender);
-io.to(partnerId).emit("matched", users[socket.id].myGender);
+    } else {
+      waitingUsers.push(socket);
+      socket.emit("waiting");
+    }
+  });
 
-} else {
-waitingUsers.push(socket.id);
-socket.emit("waiting");
-}
-});
+  socket.on("chatMessage", (msg) => {
+    if (socket.partner) {
+      socket.partner.emit("chatMessage", msg);
+    }
+  });
 
-socket.on("chatMessage", (msg) => {
-const partnerId = users[socket.id]?.partner;
-if (partnerId) {
-io.to(partnerId).emit("chatMessage", msg);
-}
-});
-
-socket.on("leaveChat", () => {
-const partnerId = users[socket.id]?.partner;
-
-if (partnerId && users[partnerId]) {
-io.to(partnerId).emit("partnerLeft");
-users[partnerId].partner = null;
-}
-
-users[socket.id].partner = null;
-});
-
-socket.on("disconnect", () => {
-const partnerId = users[socket.id]?.partner;
-
-if (partnerId && users[partnerId]) {
-io.to(partnerId).emit("partnerLeft");
-users[partnerId].partner = null;
-}
-
-waitingUsers = waitingUsers.filter(id => id !== socket.id);
-delete users[socket.id];
-});
+  socket.on("disconnect", () => {
+    if (socket.partner) {
+      socket.partner.emit("partnerLeft");
+      socket.partner.partner = null;
+    }
+    waitingUsers = waitingUsers.filter(user => user.id !== socket.id);
+  });
 
 });
 
-const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
-console.log("Server running on port", PORT);
+  console.log("Server running on port " + PORT);
 });
