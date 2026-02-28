@@ -2,129 +2,107 @@
 <html>
 <head>
     <title>Anodate</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <style>
         body {
             margin: 0;
-            font-family: 'Segoe UI', Arial, sans-serif;
+            font-family: Arial, sans-serif;
             background: linear-gradient(135deg, #ff758c, #ff7eb3);
+            display: flex;
+            justify-content: center;
+            align-items: center;
             height: 100vh;
         }
 
         .container {
-            width: 100vw;
-            height: 100vh;
+            width: 400px;
+            height: 680px;
             background: white;
+            border-radius: 15px;
             display: flex;
             flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
             position: relative;
         }
 
-        /* HEADER */
         .header {
-            background: linear-gradient(90deg, #ff4d6d, #ff758c);
+            background: #ff4d6d;
             color: white;
-            padding: 18px;
+            padding: 15px;
             text-align: center;
             font-weight: bold;
-            font-size: 20px;
             position: relative;
-            letter-spacing: 1px;
         }
 
         .settings-btn {
             position: absolute;
-            right: 20px;
-            top: 18px;
+            right: 15px;
+            top: 15px;
             cursor: pointer;
-            font-size: 18px;
         }
 
-        /* START BUTTON */
-        .start-btn {
-            margin: 15px auto;
-            padding: 12px 25px;
-            border: none;
-            border-radius: 30px;
-            background: linear-gradient(90deg, #ff4d6d, #ff758c);
-            color: white;
-            cursor: pointer;
-            font-size: 15px;
-            transition: 0.3s;
-        }
-
-        .start-btn:hover {
-            transform: scale(1.05);
-        }
-
-        /* CHAT AREA */
         .messages {
             flex: 1;
-            padding: 20px;
+            padding: 15px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            background: #fafafa;
         }
 
-        /* MESSAGE BUBBLE */
         .message {
-            padding: 12px 18px;
-            margin: 8px 0;
-            border-radius: 25px;
+            padding: 8px 12px;
+            margin: 5px 0;
+            border-radius: 15px;
             max-width: 70%;
-            font-size: 15px;
-            animation: fadeIn 0.2s ease-in-out;
         }
 
         .me {
-            background: linear-gradient(90deg, #ff758c, #ff4d6d);
-            color: white;
+            background: #dcf8c6;
             align-self: flex-end;
         }
 
         .stranger {
-            background: #e9e9eb;
+            background: #f1f0f0;
             align-self: flex-start;
         }
 
         .system {
             text-align: center;
-            font-size: 13px;
+            font-size: 12px;
             color: gray;
-            margin: 10px 0;
         }
 
-        /* INPUT AREA */
         .input-area {
             display: flex;
-            padding: 15px;
-            background: white;
-            border-top: 1px solid #eee;
+            padding: 10px;
+            border-top: 1px solid #ddd;
         }
 
         .input-area input {
             flex: 1;
-            padding: 12px;
-            border-radius: 30px;
-            border: 1px solid #ddd;
-            outline: none;
-            font-size: 14px;
+            padding: 8px;
+            border-radius: 20px;
+            border: 1px solid #ccc;
         }
 
         .input-area button {
-            margin-left: 10px;
-            padding: 12px 20px;
+            margin-left: 8px;
+            padding: 8px 15px;
             border: none;
-            border-radius: 30px;
-            background: linear-gradient(90deg, #ff4d6d, #ff758c);
+            border-radius: 20px;
+            background: #ff4d6d;
             color: white;
             cursor: pointer;
-            transition: 0.3s;
         }
 
-        .input-area button:hover {
-            transform: scale(1.05);
+        .start-btn {
+            margin: 10px;
+            padding: 10px;
+            border: none;
+            border-radius: 20px;
+            background: #ff4d6d;
+            color: white;
+            cursor: pointer;
         }
 
         /* SETTINGS PANEL */
@@ -134,40 +112,26 @@
             left: 0;
             right: 0;
             background: white;
-            border-top-left-radius: 20px;
-            border-top-right-radius: 20px;
-            box-shadow: 0 -5px 20px rgba(0,0,0,0.15);
-            padding: 25px;
+            border-top: 2px solid #ff4d6d;
+            padding: 20px;
             display: none;
-            animation: slideUp 0.3s ease-out;
         }
 
         .settings-panel select {
             width: 100%;
-            padding: 8px;
+            padding: 6px;
             margin-top: 5px;
             margin-bottom: 15px;
-            border-radius: 8px;
         }
 
         .save-btn {
             width: 100%;
-            padding: 12px;
-            background: linear-gradient(90deg, #ff4d6d, #ff758c);
+            padding: 10px;
+            background: #ff4d6d;
             color: white;
             border: none;
-            border-radius: 15px;
+            border-radius: 10px;
             cursor: pointer;
-        }
-
-        @keyframes slideUp {
-            from { transform: translateY(100%); }
-            to { transform: translateY(0); }
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(5px); }
-            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
@@ -303,3 +267,4 @@
 
 </body>
 </html>
+
